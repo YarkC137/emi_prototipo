@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Análisis Estructural</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">CALCULADORA DE ANÁLISIS ESTRUCTURAL</div>
+        <nav>
+            <a href="#">Términos y condiciones</a>
+            <a href="#">Precios</a>
+            <a href="#">Soporte</a>
+            <a href="#">Contactos</a>
+        </nav>
+    </header>
+    <main>
+        <div class="toolbar">
+            <!-- Placeholder for toolbar icons -->
+            <button id="addNodeButton" title="Add Node">&#x2795;</button> <!-- Plus icon -->
+            <button id="addMemberButton" title="Add Member">&#x2571;</button> <!-- Diagonal line -->
+            <button id="addSupportButton" title="Add Support">&#x26F0;</button> <!-- Mountain icon (similar to support) -->
+            <button id="addLoadButton" title="Add Load">&#x279B;</button> <!-- Arrow icon -->
+            <button title="Results">&#x1F4CA;</button> <!-- Chart icon -->
+            <button title="Settings">&#x2699;</button> <!-- Gear icon -->
+            
+            <!-- Botones de acción para miembros seleccionados -->
+            <button id="assignSectionButton" class="toolbar-button" title="Asignar Sección" style="display: none;">
+                <span class="icon" style="font-weight: bold; font-family: 'Times New Roman', Times, serif;">I</span>
+            </button>
+            <button id="deleteMemberButton" class="toolbar-button" title="Eliminar Miembro" style="display: none;">
+                <span class="icon">🗑️</span>
+            </button>
+        </div>
+        <div class="workspace">
+            <canvas id="gridCanvas"></canvas>
+        </div>
+        <div class="controls">
+            <button id="unitsButton">Unidades</button>
+            <!-- More controls can be added here -->
+        </div>
+    </main>
+    <footer>
+        <!-- Footer content if any -->
+    </footer>
+    <script src="script.js"></script>
+
+    <!-- Modal para seleccionar el tipo de carga -->
+    <div id="loadTypeModal" class="modal">
+        <div class="modal-content load-type-content">
+            <span class="close-button load-close-button">&times;</span>
+            <h2>TIPO DE CARGA</h2> 
+            <button id="pointLoadMemberButton" class="modal-option-button">Carga puntual sobre la barra</button>
+            <button id="pointLoadNodeButton" class="modal-option-button">Carga puntual en el nodo</button>
+            <button id="distributedLoadButton" class="modal-option-button">Carga distribuida</button>
+            <button id="momentLoadButton" class="modal-option-button">Momento</button>
+            <div class="modal-buttons load-modal-buttons">
+                <button id="cancelLoadType">Cancelar</button> 
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para carga puntual sobre la barra -->
+    <div id="pointLoadMemberModal" class="modal">
+        <div class="modal-content point-load-member-content">
+            <span class="close-button point-load-member-close-button">&times;</span>
+            <h2>Carga puntual sobre la barra</h2>
+            <div class="load-params">
+                <div class="load-param-group">
+                    <label for="loadDistance">Distancia(m)</label>
+                    <input type="number" id="loadDistance" min="0" step="0.1" value="1">
+                </div>
+                
+                <div class="load-visualization">
+                    <div class="angle-circle">
+                        <div class="angle-marker" id="angleMarker"></div>
+                        <div class="angle-label">90°</div>
+                        <div class="angle-label-horizontal">0°</div>
+                        <div class="angle-arrow"></div>
+                    </div>
+                </div>
+                
+                <div class="load-param-group">
+                    <label for="loadMagnitude">Carga [kN]</label>
+                    <input type="number" id="loadMagnitude" min="0" step="1" value="50">
+                    
+                    <label for="loadAngle">Angulo (°)</label>
+                    <input type="number" id="loadAngle" min="0" max="360" step="1" value="90">
+                </div>
+            </div>
+            
+            <div class="modal-buttons point-load-member-buttons">
+                <button id="savePointLoadMember" class="save-button">Guardar</button>
+                <button id="cancelPointLoadMember" class="cancel-button">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="pointLoadNodeModal" class="modal">
+        <div class="modal-content point-load-node-content">
+            <span class="close-button point-load-node-close-button">&times;</span>
+            <h2>Carga puntual sobre el nodo</h2>
+            <div class="load-params">
+                <div class="load-visualization">
+                    <div class="angle-circle">
+                        <div class="angle-marker" id="nodeAngleMarker"></div>
+                        <div class="angle-label">90°</div>
+                        <div class="angle-label-horizontal">0°</div>
+                        <div class="angle-arrow" id="nodeAngleArrow"></div>
+                    </div>
+                </div>
+                
+                <div class="load-param-group">
+                    <label for="nodeLoadMagnitude">Carga [kN]</label>
+                    <input type="number" id="nodeLoadMagnitude" min="0" step="1" value="50">
+                    
+                    <label for="nodeLoadAngle">Angulo (°)</label>
+                    <input type="number" id="nodeLoadAngle" min="0" max="360" step="1" value="90">
+                </div>
+            </div>
+            
+            <div class="modal-buttons point-load-node-buttons">
+                <button id="savePointLoadNode" class="save-button">Guardar</button>
+                <button id="cancelPointLoadNode" class="cancel-button">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="nodeEditorModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Edit Node</h2>
+            <div>
+                <label for="nodeX">X Coordinate:</label>
+                <input type="number" id="nodeX" name="nodeX">
+            </div>
+            <div>
+                <label for="nodeY">Y Coordinate:</label>
+                <input type="number" id="nodeY" name="nodeY">
+            </div>
+            <div>
+                <label for="nodeLabel">Label:</label>
+                <input type="text" id="nodeLabel" name="nodeLabel">
+            </div>
+            <div class="modal-buttons">
+                <button id="saveNodeChanges">Save</button>
+                <button id="cancelNodeChanges">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="memberPropertiesModal" class="modal">
+        <div class="modal-content member-properties-content">
+            <span class="close-button member-close-button">&times;</span>
+            <h2>PROPIEDADES DEL ELEMENTO</h2> 
+            <button id="addFrameElementButton" class="modal-option-button">Añadir elemento Frame</button>
+            <button id="addTrussElementButton" class="modal-option-button">Añadir elemento Truss</button>
+            <button id="sectionPropertiesButton" class="modal-option-button">Propiedades de sección</button>
+            <button id="addHingeButton" class="modal-option-button">Añadir rótula</button>
+            <div class="modal-buttons member-modal-buttons">
+                <button id="cancelMemberProperties">Cancelar</button> 
+            </div>
+        </div>
+    </div>
+
+    <div id="sectionPropsModal" class="modal">
+        <div class="modal-content section-props-content">
+            <div class="modal-header-flex">
+                <h2>PROPIEDADES DE SECCION</h2>
+                <div>
+                    <button id="addNewSectionProperty" class="header-icon-button" title="Add new section property">&#x2795;</button> <!-- Plus icon -->
+                    <span id="closeSectionPropsModal" class="close-button header-icon-button" title="Close">&times;</span>
+                </div>
+            </div>
+            <ul id="sectionPropertyList" class="section-property-list">
+                <li data-id="default">
+                    <span>1DEFAULT</span>
+                    <div class="item-actions">
+                        <button class="icon-button" title="Configure">&#x2699;</button> <!-- Gear icon -->
+                        <button class="icon-button" title="Delete">&#x1F5D1;</button> <!-- Trash icon -->
+                    </div>
+                </li>
+                <!-- More section properties will be added here by JS -->
+            </ul>
+        </div>
+    </div>
+
+    <div id="editSectionModal" class="modal">
+        <div class="modal-content edit-section-content">
+            <div class="modal-header-flex">
+                <h2>EDITAR SECCION</h2>
+                <span id="closeEditSectionModal" class="close-button header-icon-button" title="Close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <label for="editSectionName">Nombre de Seccion:</label>
+                    <input type="text" id="editSectionName" name="editSectionName">
+                </div>
+                <div>
+                    <label for="editModulusElasticity">Modulo de elasticidad Gpa):</label>
+                    <input type="number" id="editModulusElasticity" name="editModulusElasticity" step="any">
+                </div>
+                <div>
+                    <label for="editUnitWeight">Peso por unidad de volumen (kN/m3):</label>
+                    <input type="number" id="editUnitWeight" name="editUnitWeight" step="any">
+                </div>
+                <div>
+                    <label for="editThermalCoefficient">Coeficiente termico:</label>
+                    <input type="number" id="editThermalCoefficient" name="editThermalCoefficient" step="any">
+                </div>
+
+                <h3>Propiedades geometricas</h3>
+                <div>
+                    <label for="editArea">Area(m2):</label>
+                    <input type="number" id="editArea" name="editArea" step="any">
+                </div>
+                <div>
+                    <label for="editInertia">inercia(cm4):</label>
+                    <input type="number" id="editInertia" name="editInertia" step="any">
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button id="saveSectionDetailChanges">GUARDAR</button>
+                <button id="cancelSectionDetailChanges">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="renameNodeModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Rename Node</h2>
+            <div>
+                <label for="newNodeLabel">New Label:</label>
+                <input type="text" id="newNodeLabel" name="newNodeLabel">
+            </div>
+            <div class="modal-buttons">
+                <button id="saveNodeRename">Save</button>
+                <button id="cancelNodeRename">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para asignar sección al miembro seleccionado -->
+    <div id="assignSectionModal" class="modal">
+        <div class="modal-content assign-section-content">
+            <span class="close-button assign-section-close-button">&times;</span>
+            <h2>Asignar Sección al Elemento</h2>
+            <div class="form-group">
+                <label for="availableSectionsDropdown">Seleccionar Sección:</label>
+                <select id="availableSectionsDropdown">
+                    <!-- Las opciones se poblarán dinámicamente desde JavaScript -->
+                </select>
+            </div>
+            <div class="modal-buttons">
+                <button id="confirmAssignSectionButton">Asignar</button>
+        </div>
+
+    </div>
+</div>
+
+<div id="memberPropertiesModal" class="modal">
+    <div class="modal-content member-properties-content">
+        <span class="close-button member-close-button">&times;</span>
+        <h2>PROPIEDADES DEL ELEMENTO</h2> 
+        <button id="addFrameElementButton" class="modal-option-button">Añadir elemento Frame</button>
+        <button id="addTrussElementButton" class="modal-option-button">Añadir elemento Truss</button>
+        <button id="sectionPropertiesButton" class="modal-option-button">Propiedades de sección</button>
+        <button id="addHingeButton" class="modal-option-button">Añadir rótula</button>
+        <div class="modal-buttons member-modal-buttons">
+            <button id="cancelMemberProperties">Cancelar</button> 
+        </div>
+    </div>
+</div>
+
+<div id="sectionPropsModal" class="modal">
+    <div class="modal-content section-props-content">
+        <div class="modal-header-flex">
+            <h2>PROPIEDADES DE SECCION</h2>
+            <div>
+                <button id="addNewSectionProperty" class="header-icon-button" title="Add new section property">&#x2795;</button> <!-- Plus icon -->
+                <span id="closeSectionPropsModal" class="close-button header-icon-button" title="Close">&times;</span>
+            </div>
+        </div>
+        <ul id="sectionPropertyList" class="section-property-list">
+            <li data-id="default">
+                <span>1DEFAULT</span>
+                <div class="item-actions">
+                    <button class="icon-button" title="Configure">&#x2699;</button> <!-- Gear icon -->
+                    <button class="icon-button" title="Delete">&#x1F5D1;</button> <!-- Trash icon -->
+                </div>
+            </li>
+            <!-- More section properties will be added here by JS -->
+        </ul>
+    </div>
+</div>
+
+<div id="editSectionModal" class="modal">
+    <div class="modal-content edit-section-content">
+        <div class="modal-header-flex">
+            <h2>EDITAR SECCION</h2>
+            <span id="closeEditSectionModal" class="close-button header-icon-button" title="Close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div>
+                <label for="editSectionName">Nombre de Seccion:</label>
+                <input type="text" id="editSectionName" name="editSectionName">
+            </div>
+            <div>
+                <label for="editModulusElasticity">Modulo de elasticidad Gpa):</label>
+                <input type="number" id="editModulusElasticity" name="editModulusElasticity" step="any">
+            </div>
+            <div>
+                <label for="editUnitWeight">Peso por unidad de volumen (kN/m3):</label>
+                <input type="number" id="editUnitWeight" name="editUnitWeight" step="any">
+            </div>
+            <div>
+                <label for="editThermalCoefficient">Coeficiente termico:</label>
+                <input type="number" id="editThermalCoefficient" name="editThermalCoefficient" step="any">
+            </div>
+
+            <h3>Propiedades geometricas</h3>
+            <div>
+                <label for="editArea">Area(m2):</label>
+                <input type="number" id="editArea" name="editArea" step="any">
+            </div>
+            <div>
+                <label for="editInertia">inercia(cm4):</label>
+                <input type="number" id="editInertia" name="editInertia" step="any">
+            </div>
+        </div>
+        <div class="modal-buttons">
+            <button id="saveSectionDetailChanges">GUARDAR</button>
+            <button id="cancelSectionDetailChanges">CANCELAR</button>
+        </div>
+    </div>
+</div>
+
+<div id="renameNodeModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>Rename Node</h2>
+        <div>
+            <label for="newNodeLabel">New Label:</label>
+            <input type="text" id="newNodeLabel" name="newNodeLabel">
+        </div>
+        <div class="modal-buttons">
+            <button id="saveNodeRename">Save</button>
+            <button id="cancelNodeRename">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para asignar sección al miembro seleccionado -->
+<div id="assignSectionModal" class="modal">
+    <div class="modal-content assign-section-content">
+        <span class="close-button assign-section-close-button">&times;</span>
+        <h2>Asignar Sección al Elemento</h2>
+        <div class="form-group">
+            <label for="availableSectionsDropdown">Seleccionar Sección:</label>
+            <select id="availableSectionsDropdown">
+                <!-- Las opciones se poblarán dinámicamente desde JavaScript -->
+            </select>
+        </div>
+        <div class="modal-buttons">
+            <button id="confirmAssignSectionButton">Asignar</button>
+            <button id="cancelAssignSectionButton">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para carga distribuida -->
+<div id="distributedLoadModal" class="modal">
+    <div class="modal-content distributed-load-content">
+        <span class="close-button distributed-load-close-button" id="closeDistributedLoad">&times;</span>
+        <h2>AÑADIR CARGA DISTRIBUIDA</h2>
+        
+        <div class="load-params-flex-container">
+            <div class="load-param-group">
+                <label for="startLoadInput">Inicio de Carga (kN/m)</label>
+                <input type="number" id="startLoadInput" step="0.1" value="10">
+            </div>
+            
+            <div class="load-param-group">
+                <label for="startDistanceInput">Inicio de Distancia (m)</label>
+                <input type="number" id="startDistanceInput" step="0.1" value="0">
+            </div>
+        </div>
+        
+        <div class="load-params-flex-container">
+            <div class="load-param-group">
+                <label for="endLoadInput">Fin de Carga (kN/m)</label>
+                <input type="number" id="endLoadInput" step="0.1" value="10">
+            </div>
+            
+            <div class="load-param-group">
+                <label for="endDistanceInput">Fin de Distancia (m)</label>
+                <input type="number" id="endDistanceInput" step="0.1" value="1">
+            </div>
+        </div>
+        
+        <h3 class="load-type-title">Tipo de carga</h3>
+        
+        <div class="load-types-container">
+            <!-- Opciones de tipo de carga -->
+            <div class="load-type-option">
+                <button id="perpendicularLoad" class="load-type-button active">Perpendicular a la estructura</button>
+                <div class="load-type-image perpendicular-load-image"></div>
+            </div>
+            
+            <div class="load-type-option">
+                <button id="linearXLoad" class="load-type-button">Carga lineal normal al eje X</button>
+                <div class="load-type-image linearx-load-image"></div>
+            </div>
+            
+            <!-- // PARA TRABAJAR EN EL FUTURO - Botón Carga externa
+            <div class="load-type-option">
+                <button id="externalLoad" class="load-type-button">Carga externa</button>
+                <div class="load-type-image external-load-image"></div>
+            </div>
+            -->
+            
+            <div class="load-type-option">
+                <button id="axialLoad" class="load-type-button">Axial a la estructura</button>
+                <div class="load-type-image axial-load-image"></div>
+            </div>
+        </div>
+        
+        <div class="modal-buttons distributed-load-buttons">
+            <button id="saveDistributedLoad" class="save-button">Guardar</button>
+            <button id="cancelDistributedLoad" class="cancel-button">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para editar carga distribuida -->
+<div id="editDistLoadModal" class="modal">
+    <div class="modal-content edit-dist-load-content">
+        <span class="close-button edit-dist-load-close-button" id="closeEditDistLoad">&times;</span>
+        <h2>EDITAR CARGA DISTRIBUIDA</h2>
+        
+        <div class="load-params-flex-container">
+            <div class="load-param-group">
+                <label for="editStartLoadInput">Inicio de Carga (kN/m)</label>
+                <input type="number" id="editStartLoadInput" step="0.1">
+            </div>
+            
+            <div class="load-param-group">
+                <label for="editStartDistanceInput">Inicio de Distancia (m)</label>
+                <input type="number" id="editStartDistanceInput" step="0.1">
+            </div>
+        </div>
+        
+        <div class="load-params-flex-container">
+            <div class="load-param-group">
+                <label for="editEndLoadInput">Fin de Carga (kN/m)</label>
+                <input type="number" id="editEndLoadInput" step="0.1">
+            </div>
+            
+            <div class="load-param-group">
+                <label for="editEndDistanceInput">Fin de Distancia (m)</label>
+                <input type="number" id="editEndDistanceInput" step="0.1">
+            </div>
+        </div>
+        
+        <div class="modal-buttons edit-dist-load-buttons">
+            <button id="saveEditDistLoad" class="save-button">Guardar</button>
+            <button id="cancelEditDistLoad" class="cancel-button">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para carga de momento -->
+<div id="momentLoadModal" class="modal">
+    <div class="modal-content moment-load-content">
+        <span class="close-button moment-load-close-button" id="closeMomentLoad">&times;</span>
+        <h2>Inserte la carga de momento</h2>
+        
+        <div class="load-param-group">
+            <label for="momentLoadInput">Carga [kN-m]</label>
+            <input type="number" id="momentLoadInput" step="1" value="50">
+        </div>
+        
+        <div class="load-direction-buttons">
+            <button id="clockwiseButton" class="direction-button">Horario</button>
+            <button id="counterClockwiseButton" class="direction-button">Antihorario</button>
+        </div>
+        
+        <div class="modal-buttons moment-load-buttons">
+            <button id="saveMomentLoad" class="save-button">Guardar</button>
+            <button id="cancelMomentLoad" class="cancel-button">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

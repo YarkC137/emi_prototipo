@@ -1,0 +1,991 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #333;
+    color: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden; /* Prevent scrollbars from body */
+}
+
+header {
+    background-color: #222;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #444;
+}
+
+.logo {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+nav a {
+    color: #f0f0f0;
+    text-decoration: none;
+    margin-left: 15px;
+    font-size: 0.9em;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+main {
+    flex-grow: 1;
+    display: flex;
+    position: relative; /* For positioning toolbar and controls */
+}
+
+.toolbar {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%); 
+    background-color: rgba(50, 50, 50, 0.8);
+    padding: 8px;
+    border-radius: 5px;
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+}
+
+.toolbar button {
+    background-color: #444;
+    color: #f0f0f0;
+    border: 1px solid #555;
+    padding: 8px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 1.2em;
+}
+
+.toolbar button:hover {
+    background-color: #555;
+}
+
+.toolbar button.active {
+    background-color: #007bff;
+    border-color: #0056b3;
+}
+
+.toolbar button#addMemberButton.active {
+    background-color: #007bff;
+    border-color: #0056b3;
+}
+
+.workspace {
+    flex-grow: 1;
+    position: relative; /* Needed for canvas absolute positioning */
+    overflow: hidden; /* Crucial for canvas behavior */
+}
+
+#gridCanvas {
+    display: block; /* Removes extra space below canvas */
+    background-color: #282828; /* Dark grid background */
+    width: 100%;
+    height: 100%;
+}
+
+.controls {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background-color: rgba(50, 50, 50, 0.8);
+    padding: 5px;
+    border-radius: 5px;
+    z-index: 10;
+}
+
+.controls button {
+    background-color: #444;
+    color: #f0f0f0;
+    border: 1px solid #555;
+    padding: 8px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.controls button:hover {
+    background-color: #555;
+}
+
+footer {
+    background-color: #222;
+    padding: 5px 20px;
+    text-align: center;
+    font-size: 0.8em;
+    border-top: 1px solid #444;
+}
+
+/* Modal Styles */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 100; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.6); /* Black w/ opacity */
+}
+/* ESTILO DE CAJA PARA POPIEDADES DE ELEMENTO*/
+.modal-content {
+    background-color: #2d2d2d;
+    color: #f0f0f0;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #555;
+    width: 80%; /* Could be more or less, depending on screen size */
+    max-width: 400px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+
+
+
+
+
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.modal h2 {
+    margin-top: 0;
+    color: #f0f0f0;
+}
+
+.modal div {
+    margin-bottom: 15px;
+}
+
+.modal label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.modal input[type="text"],
+.modal input[type="number"] {
+    width: calc(100% - 22px); /* Full width minus padding and border */
+    padding: 10px;
+    border: 1px solid #555;
+    background-color: #333;
+    color: #f0f0f0;
+    border-radius: 3px;
+}
+
+.modal-buttons button {
+    background-color: #555;
+    color: #f0f0f0;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.modal-buttons button:hover {
+    background-color: #666;
+}
+
+.modal-buttons button#saveNodeChanges {
+    background-color: #007bff;
+}
+
+.modal-buttons button#saveNodeChanges:hover {
+    background-color: #0056b3;
+}
+
+/* Styles for Member Properties Modal */
+.member-properties-content h2 {
+    color: #ffffff; /* Light blue for the title as in image */
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+/* Styles for Moment Load Modal */
+.moment-load-content {
+    background-color: #2d2d2d;
+    border-radius: 10px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    padding: 25px;
+}
+
+.moment-load-content h2 {
+    color: #E67E22;
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 1.5em;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.load-direction-buttons {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+}
+
+.direction-button {
+    background-color: #E67E22;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+    width: 45%;
+}
+
+.direction-button:hover {
+    background-color: #D35400;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.direction-button.active {
+    background-color: #D35400;
+    border: 2px solid #FFF;
+    font-weight: bold;
+}
+
+.moment-load-buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 25px;
+}
+
+.moment-load-buttons .save-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 25px;
+    margin: 0 10px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+
+.moment-load-buttons .cancel-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 25px;
+    margin: 0 10px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+
+.moment-load-buttons .save-button:hover {
+    background-color: #2600fd;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.moment-load-buttons .cancel-button:hover {
+    background-color: #2600fd;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+    /* BOTON DE ADD MEMBER */
+.modal-option-button {
+    display: block;
+    width: 80%;
+    margin: 10px auto;
+    padding: 12px;
+    background-color: #E67E22; /* Orange color from image */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s;
+    text-align: center;
+}
+
+.modal-option-button:hover {
+    background-color: #D35400; /* Darker orange on hover */
+}
+
+.member-modal-buttons {
+    margin-top: 20px;
+    text-align: center; /* Center the cancel button */
+}
+
+/* Specific styling for the cancel button in member properties modal if needed */
+.member-modal-buttons button#cancelMemberProperties {
+    background-color: #3498DB; /* Blue color from image */
+    padding: 10px 25px;
+}
+
+.member-modal-buttons button#cancelMemberProperties:hover {
+    background-color: #2980B9; /* Darker blue on hover */
+}
+
+/* Ensure the close button in member modal is also styled if it's different */
+.member-close-button {
+    /* Inherits .close-button styles, add specifics if needed */
+    color: #ccc; /* Make it a bit more visible on dark background */
+}
+
+.member-close-button:hover {
+    color: white;
+}
+
+/* Styles for Section Properties Modal */
+.section-props-content {
+    background-color: #333; /* Dark background as per image */
+    padding: 20px;
+    border-radius: 8px;
+    width: 350px; /* Adjust as needed */
+    max-width: 90%;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.modal-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #555; /* Separator line */
+    padding-bottom: 10px;
+}
+
+.modal-header-flex h2 {
+    color: #5DADE2; /* Light blue title */
+    font-size: 1.2em;
+    margin: 0; /* Remove default margin */
+}
+
+.header-icon-button {
+    background: none;
+    border: none;
+    color: #ccc;
+    font-size: 1.5em; /* Make icons larger */
+    cursor: pointer;
+    padding: 5px;
+    margin-left: 10px;
+}
+
+.header-icon-button:hover {
+    color: white;
+}
+
+.section-property-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 300px; /* Example max height for scrollability */
+    overflow-y: auto;
+}
+
+.section-property-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 5px;
+    border-bottom: 1px solid #444; /* Separator for items */
+    color: #eee; /* Light text color for items */
+}
+
+.section-property-list li:last-child {
+    border-bottom: none;
+}
+
+.section-property-list li span {
+    flex-grow: 1;
+}
+
+.item-actions .icon-button {
+    background: none;
+    border: none;
+    color: #ccc;
+    font-size: 1.2em; /* Size for gear and trash icons */
+    cursor: pointer;
+    padding: 5px;
+    margin-left: 8px;
+}
+
+.item-actions .icon-button:hover {
+    color: white;
+}
+
+/* Custom scrollbar for the list (optional, webkit only) */
+.section-property-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.section-property-list::-webkit-scrollbar-track {
+    background: #2c2c2c;
+}
+
+.section-property-list::-webkit-scrollbar-thumb {
+    background-color: #555;
+    border-radius: 4px;
+}
+
+.section-property-list::-webkit-scrollbar-thumb:hover {
+    background-color: #777;
+}
+
+/* Styles for the new Edit Section Modal */
+.edit-section-content {
+    background-color: #333; /* Dark background for the modal content */
+    color: #fff; /* Light text color */
+    padding: 25px;
+    border-radius: 8px;
+    width: 350px; /* Or a specific width based on the image */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.edit-section-content .modal-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.edit-section-content h2 {
+    color: #00aeff; /* Blue color for the title */
+    margin: 0;
+    font-size: 1.4em;
+}
+
+.edit-section-content .close-button {
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    background: none;
+    border: none;
+}
+
+.edit-section-content .close-button:hover,
+.edit-section-content .close-button:focus {
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.edit-section-content .modal-body div {
+    margin-bottom: 15px;
+}
+
+.edit-section-content label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: #ccc;
+}
+
+.edit-section-content input[type="text"],
+.edit-section-content input[type="number"] {
+    width: calc(100% - 20px); /* Full width minus padding */
+    padding: 8px 10px;
+    background-color: #444; /* Darker background for inputs */
+    border: 1px solid #555; /* Subtle border */
+    border-radius: 4px;
+    color: #fff; /* Light text color for input */
+    font-size: 1em;
+}
+
+.edit-section-content input[type="number"]::-webkit-inner-spin-button,
+.edit-section-content input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.edit-section-content h3 {
+    color: #00aeff; /* Blue color for subheadings */
+    font-size: 1.1em;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #555;
+    padding-bottom: 5px;
+}
+
+.edit-section-content .modal-buttons {
+    text-align: right;
+    margin-top: 25px;
+}
+
+.edit-section-content .modal-buttons button {
+    background-color: #007bff; /* Primary button color */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-left: 10px;
+}
+
+.edit-section-content .modal-buttons button#cancelSectionDetailChanges {
+    background-color: #6c757d; /* Secondary/cancel button color */
+}
+
+.edit-section-content .modal-buttons button:hover {
+    opacity: 0.9;
+}
+
+/* Estilos para el modal de asignación de sección */
+.assign-section-content {
+    background-color: #333;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    width: 400px; /* Ajustar según necesidad */
+    color: #f0f0f0;
+}
+
+.assign-section-content h2 {
+    margin-top: 0;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.assign-section-content .form-group {
+    margin-bottom: 15px;
+}
+
+.assign-section-content .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.assign-section-content select {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    background-color: #444;
+    color: #f0f0f0;
+    box-sizing: border-box;
+}
+
+.assign-section-content .modal-buttons {
+    text-align: right;
+    margin-top: 20px;
+}
+
+.assign-section-content .modal-buttons button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-left: 10px;
+}
+
+.assign-section-content .modal-buttons button#confirmAssignSectionButton {
+    background-color: #5cb85c; /* Verde para confirmar/asignar */
+    color: white;
+}
+
+.assign-section-content .modal-buttons button#cancelAssignSectionButton {
+    background-color: #6c757d; /* Color secundario/cancelar */
+    color: white;
+}
+
+.assign-section-content .modal-buttons button:hover {
+    opacity: 0.9;
+}
+
+.assign-section-close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.assign-section-close-button:hover,
+.assign-section-close-button:focus {
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Estilos para el modal de tipo de carga */
+.load-type-content, .point-load-member-content {
+    background-color: #2d2d2d;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #555;
+    width: 300px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    color: #ddd;
+}
+
+.load-type-content h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #fff;
+    font-size: 1.5em;
+}
+
+.load-type-content .modal-option-button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 12px;
+    background-color: #E67E22;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 1em;
+    transition: background-color 0.3s;
+    cursor: pointer;
+}
+
+.load-type-content .modal-option-button:hover {
+    background-color: #555;
+}
+
+.load-modal-buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.load-modal-buttons button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #5DADE2;
+    color: white;
+}
+
+.load-modal-buttons button:hover {
+    opacity: 0.9;
+}
+
+.load-close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.load-close-button:hover,
+.load-close-button:focus,
+.point-load-member-close-button:hover,
+.point-load-member-close-button:focus {
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Estilos específicos para el modal de carga puntual sobre la barra */
+.load-params {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+}
+
+.load-param-group {
+    display: flex;
+    flex-direction: column;
+    width: 30%;
+}
+
+.load-param-group label {
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.load-param-group input {
+    padding: 8px;
+    background-color: #333;
+    border: 1px solid #555;
+    border-radius: 4px;
+    color: white;
+    margin-bottom: 15px;
+}
+
+.load-visualization {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 30%;
+}
+
+.angle-circle {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background-color: #333;
+    cursor: pointer; /* Indicar que es interactivo */
+    margin: 0 auto; /* Centrar horizontalmente */
+    margin-bottom: 15px; /* Espacio debajo del círculo */
+}
+
+.angle-marker {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background-color: #ff7f00; /* Color naranja para el marcador */
+    border-radius: 50%;
+    transform: translate(-50%, -50%); /* Centrar el marcador en su posición */
+    cursor: grab; /* Indicar que se puede arrastrar */
+    box-shadow: 0 0 5px rgba(255, 127, 0, 0.7); /* Sombra suave para destacarlo */
+    z-index: 10; /* Asegurar que está por encima de otros elementos */
+}
+
+.angle-label {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    color: #fff;
+    font-weight: bold;
+}
+
+.angle-label-horizontal {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: #fff;
+    font-weight: bold;
+}
+
+.angle-arrow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px; /* Longitud de la flecha desde el centro hasta el marcador */
+    height: 2px;
+    background-color: #fff;
+    transform-origin: left center; /* Origen en el centro del círculo (izquierda de la flecha) */
+    pointer-events: none; /* Para que no interfiera con los eventos del marcador */
+}
+
+/* Punta de la flecha en el centro (IZQUIERDA de la línea) */
+.angle-arrow:before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0; /* Punta en el extremo izquierdo (centro del círculo) */
+    border-style: solid;
+    border-width: 4px 6px 4px 0; /* Punta hacia la derecha */
+    border-color: transparent #fff transparent transparent;
+    transform: translateY(-50%);
+}
+
+.point-load-member-buttons {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.point-load-member-buttons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: 10px;
+}
+
+.save-button {
+    background-color: #0078d7;
+    color: white;
+}
+
+.cancel-button {
+    background-color: #6c757d;
+    color: white;
+}
+
+.save-button:hover, .cancel-button:hover {
+    opacity: 0.9;
+}
+
+/* Estilos para el modal de carga distribuida */
+.distributed-load-content {
+    max-width: 450px;
+    padding: 25px;
+    background-color: #3a3a3a;
+    color: white;
+}
+
+.distributed-load-content h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1.4em;
+}
+
+.distributed-load-content h3.load-type-title {
+    margin-top: 25px;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 1.2em;
+}
+
+.load-param-group {
+    margin-bottom: 15px;
+}
+
+.load-param-group.full-width {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.load-param-group input {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    border-bottom: 1px solid #777;
+    background-color: transparent;
+    color: white;
+    font-size: 1em;
+}
+
+.full-width {
+    width: 100%;
+}
+
+/* Estilos para el contenedor flex de parámetros de carga */
+.load-params-flex-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+/* Estilos para cada grupo de parámetros dentro del contenedor flex */
+.load-params-flex-container .load-param-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ajuste para las etiquetas dentro de los grupos de parámetros */
+.load-params-flex-container .load-param-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Ajuste para los inputs dentro de los grupos de parámetros */
+.load-params-flex-container .load-param-group input {
+    width: 100%;
+    margin-top: 5px;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    background-color: #444;
+    color: #fff;
+}
+
+.load-types-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.load-type-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.load-type-button {
+    background-color: #ff000079;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    flex-grow: 1;
+    margin-right: 15px;
+    cursor: pointer;
+    font-size: 0.9em;
+    text-align: center;
+}
+
+.load-type-button.active {
+    background-color: #d06500;
+}
+
+.load-type-image {
+    width: 80px;
+    height: 60px;
+    background-color: white;
+    border-radius: 5px;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.perpendicular-load-image {
+    background-image: url('images/01.svg');
+}
+
+.linearx-load-image {
+    background-image: url('images/02.svg');
+}
+
+
+.external-load-image {
+    background-image: url('images/03.svg');
+}
+
+.axial-load-image {
+    background-image: url('images/04.svg');
+}
+
+.distributed-load-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.save-button, .cancel-button {
+    padding: 10px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.save-button {
+    background-color: #4b87d7;
+    color: white;
+}
+
+.cancel-button {
+    background-color: #6c757d;
+    color: white;
+}
