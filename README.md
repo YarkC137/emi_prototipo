@@ -1,6 +1,6 @@
 # Calculadora de Análisis Estructural
 
-Esta es una aplicación web para el análisis estructural, similar en concepto a [BeamGuru Frame](https://beamguru.com/frame/).
+Esta es una aplicación web para el análisis estructural
 
 ## Características Implementadas
 
